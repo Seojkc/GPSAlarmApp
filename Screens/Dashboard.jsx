@@ -3,7 +3,7 @@ import { View, PermissionsAndroid, Platform } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { StyleSheet } from 'react-native';
-
+import OverlayComponent from './HomeOverlayout'; // Assuming OverlayComponent is in the same directory
 
 const darkMapStyle = 
   [
@@ -206,7 +206,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       <MapView
         style={styles.mapView}
         showsUserLocation={true}
@@ -224,11 +224,15 @@ export default function Dashboard() {
           <Marker coordinate={location} title="You are here" />
         )}
       </MapView>
+      <OverlayComponent />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   mapView: {
     flex: 1,
   },
