@@ -1,12 +1,14 @@
+// HomeOverlayout.js
 import React, { useRef, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, Animated, TouchableOpacity } from 'react-native';
+
 const { height, width } = Dimensions.get('window');
 
 export default function OverlayComponent() {
   const bottomHeight = height / 2;
-  const minHeight = 60; // height when collapsed (just enough for arrow)
+  const minHeight = 60;
 
-  const animation = useRef(new Animated.Value(bottomHeight)).current; // initial height = half screen
+  const animation = useRef(new Animated.Value(bottomHeight)).current;
   const [expanded, setExpanded] = useState(true);
 
   const toggleOverlay = () => {
@@ -15,20 +17,16 @@ export default function OverlayComponent() {
       duration: 300,
       useNativeDriver: false,
     }).start();
-
     setExpanded(!expanded);
   };
 
   return (
     <Animated.View style={[styles.overlay, { height: animation }]}>
-      {/* Touchable arrow to toggle */}
       <TouchableOpacity style={styles.arrowContainer} onPress={toggleOverlay}>
         <Text style={{ fontSize: 30, color: 'white' }}>
-            {expanded ? '↓' : '↑'}
+          {expanded ? '↓' : '↑'}
         </Text>
       </TouchableOpacity>
-
-      {/* Content visible only when expanded */}
       {expanded && (
         <View style={styles.content}>
           <Text style={styles.text}>Overlay Content Here</Text>
@@ -40,12 +38,15 @@ export default function OverlayComponent() {
 
 const styles = StyleSheet.create({
   overlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
     width: width,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(21, 21, 21, 1)',
     zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 6,
+    bottom: 0,
   },
   arrowContainer: {
     alignItems: 'center',

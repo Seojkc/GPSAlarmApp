@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { View, PermissionsAndroid, Platform } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, PermissionsAndroid, Platform, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import { StyleSheet } from 'react-native';
-import OverlayComponent from './HomeOverlayout'; // Assuming OverlayComponent is in the same directory
+import OverlayComponent from './HomeOverlayout'; // import correctly!
 
 const darkMapStyle = 
   [
@@ -168,10 +167,10 @@ const darkMapStyle =
     }
 ]
 
-
 export default function Dashboard() {
   const [location, setLocation] = useState(null);
-  const mapRef = React.useRef(null);
+  const mapRef = useRef(null);
+
   useEffect(() => {
     const requestLocationPermission = async () => {
       if (Platform.OS === 'android') {
@@ -182,10 +181,9 @@ export default function Dashboard() {
             message: "App needs access to your location",
             buttonNeutral: "Ask Me Later",
             buttonNegative: "Cancel",
-            buttonPositive: "OK"
+            buttonPositive: "OK",
           }
         );
-
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           console.warn("Location permission denied");
           return;
@@ -208,32 +206,59 @@ export default function Dashboard() {
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         style={styles.mapView}
         showsUserLocation={true}
         zoomEnabled={true}
         customMapStyle={darkMapStyle}
-        zoomControlEnabled={true} 
-        region={location ? {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        } : undefined}
+        zoomControlEnabled={true}
+        region={
+          location
+            ? {
+                latitude: location.latitude,
+                longitude: location.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }
+            : undefined
+        }
       >
-        {location && (
-          <Marker coordinate={location} title="You are here" />
-        )}
+        {location && <Marker coordinate={location} title="You are here" />}
       </MapView>
+
       <OverlayComponent />
+
+      <TouchableOpacity
+        style={styles.plusButton}
+        onPress={() => console.log('Plus button pressed')}
+      >
+        <View>
+          <Text style={styles.plusText}>+</Text>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { flex: 1 },
+  mapView: { flex: 1 },
+  plusButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: '#2196F3',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 6,
+    zIndex: 20,
   },
-  mapView: {
-    flex: 1,
+  plusText: {
+    fontSize: 30,
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
