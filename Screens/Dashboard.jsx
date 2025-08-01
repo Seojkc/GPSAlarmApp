@@ -1,8 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef,useContext } from 'react';
 import { View, PermissionsAndroid, Platform, TouchableOpacity, Text, StyleSheet,Alert  } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import OverlayComponent from './HomeOverlayout'; // import correctly!
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import DraggableMarkers,{ STORAGE_KEY } from './Markers'; // import the storage key
+import { PinContext } from '../Context/PinContext';
+import OverlayPanel from './PinOverlayPanel';
 
 const darkMapStyle = 
   [
@@ -169,12 +173,52 @@ const darkMapStyle =
 
 export default function Dashboard() {
 
+
+  const { pins, addPin, updatePin, removePin } = useContext(PinContext);
+  const [selectedPin, setSelectedPin] = useState(null);
+
+  const handleAddPin = () => {
+    if (!location) {
+      Alert.alert("Location not available", "Please enable location services.");
+      return;
+    }
+
+    const newPin = {
+      id: Date.now().toString(),
+      title: 'New Pin',
+      coordinate: {
+        latitude: location.latitude + (Math.random()-0.5) * 0.01,
+        longitude: location.longitude + (Math.random()-0.5) * 0.01,
+      },
+    };
+    addPin(newPin);
+  };
+
+  const handleRemovePin = (id) => {
+    Alert.alert(
+      'Remove Pin',
+      'Are you sure?',
+      [
+        { text: 'Cancel' },
+        {
+          text: 'Remove',
+          onPress: () => removePin(id),
+          style: 'destructive',
+        },
+      ]
+    );
+  };
+
+
+
+
   const [location, setLocation] = useState(null);
 
 
   const mapRef = useRef(null);
 
   const [draggableMarker, setDraggableMarker] = useState(null);
+  const [markers, setMarkers] = useState([]); // allow multiple markers
 
 
   useEffect(() => {
@@ -203,16 +247,21 @@ export default function Dashboard() {
         if (!fineGranted || !coarseGranted) {
           const granted = await PermissionsAndroid.requestMultiple([
             PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-            PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,  // Add this
-
+            PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
           ]);
 
           if (
             granted['android.permission.ACCESS_FINE_LOCATION'] !== PermissionsAndroid.RESULTS.GRANTED ||
             granted['android.permission.ACCESS_COARSE_LOCATION'] !== PermissionsAndroid.RESULTS.GRANTED
           ) {
-            Alert.alert('Permission Denied', 'Location permission is required to use this App');
+            Alert.alert(
+              'Permission Denied',
+              'Please enable location permission from settings.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Open Settings', onPress: () => PermissionsAndroid.openSettings() }
+              ]
+            );
             return;
           }
         }
@@ -284,15 +333,18 @@ export default function Dashboard() {
           }
         >
           <Marker coordinate={location} title="You are here" />
-          {/* <Marker
-            coordinate={draggableMarker}
-            draggable
-            onDragEnd={(e) => {
-              const newCoord = e.nativeEvent.coordinate;
-              setDraggableMarker(newCoord);
-            }}
-            title="Drag me"
-          /> */}
+          {pins.map((pin) => (
+              <Marker
+                key={pin.id}
+                coordinate={pin.coordinate}
+                title={pin.title}
+                draggable
+                onDragEnd={(e) => {
+                  updatePin({ ...pin, coordinate: e.nativeEvent.coordinate });
+                }}
+                onCalloutPress={() => handleRemovePin(pin.id)}
+              />
+            ))}
         </MapView>
 
         ): (
@@ -305,12 +357,20 @@ export default function Dashboard() {
 
       <TouchableOpacity
         style={styles.plusButton}
-        onPress={() => console.log('Plus button pressed')}
+        onPress={handleAddPin}
       >
         <View>
           <Text style={styles.plusText}>+</Text>
         </View>
       </TouchableOpacity>
+
+      <OverlayPanel
+        pins={pins}
+        updatePin={updatePin}
+        removePin={removePin}
+        selectedPin={selectedPin}
+        setSelectedPin={setSelectedPin}
+      />
     </View>
   );
 }
@@ -320,11 +380,11 @@ const styles = StyleSheet.create({
   mapView: { flex: 1 },
   plusButton: {
     position: 'absolute',
-    top: 40,
-    right: 20,
+    top: 70,
+    right: 10,
     backgroundColor: '#2196F3',
-    width: 60,
-    height: 60,
+    width: 40,
+    height: 40,
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',

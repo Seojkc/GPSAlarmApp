@@ -6,15 +6,18 @@ import App from './App.jsx';
 import { Provider } from 'react-redux';
 import store from './State/store.js';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { PinProvider } from './Context/PinContext.js';
 
 
 const ReduxApp = () => (
   
-      <Provider store={store}>
-        <SafeAreaProvider>
-          <App />
-        </SafeAreaProvider>
-      </Provider>
+      <PinProvider>
+        <Provider store={store}>
+          <SafeAreaProvider>
+            <App />
+          </SafeAreaProvider>
+        </Provider>
+      </PinProvider>
   
 );
 

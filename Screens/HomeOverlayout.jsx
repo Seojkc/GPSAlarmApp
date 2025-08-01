@@ -23,7 +23,7 @@ export default function OverlayComponent() {
   return (
     <Animated.View style={[styles.overlay, { height: animation }]}>
       <TouchableOpacity style={styles.arrowContainer} onPress={toggleOverlay}>
-        <Text style={{ fontSize: 30, color: 'white' }}>
+        <Text style={{ fontSize: 40, color: 'white',left: width / 2 - 50 }}>
           {expanded ? '↓' : '↑'}
         </Text>
       </TouchableOpacity>
