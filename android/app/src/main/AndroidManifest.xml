@@ -2,6 +2,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    
+
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
@@ -10,7 +12,12 @@
       android:allowBackup="false"
       android:theme="@style/AppTheme"
       android:supportsRtl="true">
+
+        <meta-data   
+          android:name="com.google.android.geo.API_KEY"
+          android:value="AIzaSyANFonfCfREwHwLpyRYcZieozcEqTFGYyE"/>  
       <activity
+
         android:name=".MainActivity"
         android:label="@string/app_name"
         android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
