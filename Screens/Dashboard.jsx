@@ -1,16 +1,21 @@
 
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Main from './Main.jsx';
-import Second from './Second.jsx';
-
-const Tab = createBottomTabNavigator();
+import { View, Text } from 'react-native';
+import MapView from 'react-native-maps';
+import { StyleSheet } from 'react-native';
 
 export default function Dashboard() {
   return (
-    <Tab.Navigator  initialRouteName="Second">
-      <Tab.Screen name="Main" component={Main} options={{ headerShown: false }}/>
-      <Tab.Screen name="Second" component={Second} options={{ headerShown: false }}/>
-    </Tab.Navigator>
+    <View style={{ flex: 1 }}>
+      <MapView style={styles.mapView} >
+      </MapView>
+    </View>
   );
 }
+
+
+const styles = StyleSheet.create({
+  mapView:{
+    flex:1
+  }
+})
