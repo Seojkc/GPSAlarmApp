@@ -29,7 +29,7 @@ export default function OverlayComponent() {
       </TouchableOpacity>
       {expanded && (
         <View style={styles.content}>
-          <Text style={styles.text}>Overlay Content Here</Text>
+          <Text style={styles.text}>poda koppe</Text>
         </View>
       )}
     </Animated.View>

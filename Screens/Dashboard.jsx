@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, PermissionsAndroid, Platform, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, PermissionsAndroid, Platform, TouchableOpacity, Text, StyleSheet,Alert  } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import OverlayComponent from './HomeOverlayout'; // import correctly!
@@ -168,63 +168,138 @@ const darkMapStyle =
 ]
 
 export default function Dashboard() {
+
   const [location, setLocation] = useState(null);
+
+
   const mapRef = useRef(null);
 
+  const [draggableMarker, setDraggableMarker] = useState(null);
+
+
   useEffect(() => {
-    const requestLocationPermission = async () => {
+    if (location) {
+      setDraggableMarker({
+        latitude: location.latitude + 0.001,
+        longitude: location.longitude + 0.001,
+      });
+    }
+  }, [location]);
+
+  useEffect(() => {
+  const requestLocationPermission = async () => {
+    try {
+      let hasPermission = true;
+
       if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      try {
+        const fineGranted = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+        );
+        const coarseGranted = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
+        );
+
+        if (!fineGranted || !coarseGranted) {
+          const granted = await PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+            PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,  // Add this
+
+          ]);
+
+          if (
+            granted['android.permission.ACCESS_FINE_LOCATION'] !== PermissionsAndroid.RESULTS.GRANTED ||
+            granted['android.permission.ACCESS_COARSE_LOCATION'] !== PermissionsAndroid.RESULTS.GRANTED
+          ) {
+            Alert.alert('Permission Denied', 'Location permission is required to use this App');
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn(err);
+        return;
+      }
+    }
+
+      if (hasPermission) {
+        Geolocation.getCurrentPosition(
+          position => {
+            const { latitude, longitude } = position.coords;
+            setLocation({ latitude, longitude });
+          },
+         error => {
+            console.error('Location error:', error);
+
+            switch (error.code) {
+              case 1:
+                Alert.alert('Permission Denied', 'Please allow location access.');
+                break;
+              case 2:
+                Alert.alert('Location Unavailable', 'Could not determine location.');
+                break;
+              case 3:
+                Alert.alert('Timeout', 'Location request timed out.');
+                break;
+              default:
+                Alert.alert('Error', error.message);
+            }
+          },
           {
-            title: "Location Permission",
-            message: "App needs access to your location",
-            buttonNeutral: "Ask Me Later",
-            buttonNegative: "Cancel",
-            buttonPositive: "OK",
+            enableHighAccuracy: false,
+            timeout: 15000,
+            distanceFilter: 10,
+            forceRequestLocation: true,
+            showLocationDialog: true
           }
         );
-        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          console.warn("Location permission denied");
-          return;
-        }
       }
+    } catch (err) {
+      console.error('Permission error:', err);
+    }
+  };
 
-      Geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setLocation({ latitude, longitude });
-        },
-        (error) => console.error(error),
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-      );
-    };
-
-    requestLocationPermission();
-  }, []);
+  requestLocationPermission();
+}, []);
 
   return (
     <View style={styles.container}>
-      <MapView
-        ref={mapRef}
-        style={styles.mapView}
-        showsUserLocation={true}
-        zoomEnabled={true}
-        customMapStyle={darkMapStyle}
-        zoomControlEnabled={true}
-        region={
-          location
-            ? {
-                latitude: location.latitude,
-                longitude: location.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }
-            : undefined
-        }
-      >
-        {location && <Marker coordinate={location} title="You are here" />}
-      </MapView>
+      {location ?
+        (<MapView
+          ref={mapRef}
+          style={styles.mapView}
+          showsUserLocation={true}
+          zoomEnabled={true}
+          customMapStyle={darkMapStyle}
+          zoomControlEnabled={true}
+          region={
+            location
+              ? {
+                  latitude: location.latitude,
+                  longitude: location.longitude,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }
+              : undefined
+          }
+        >
+          <Marker coordinate={location} title="You are here" />
+          {/* <Marker
+            coordinate={draggableMarker}
+            draggable
+            onDragEnd={(e) => {
+              const newCoord = e.nativeEvent.coordinate;
+              setDraggableMarker(newCoord);
+            }}
+            title="Drag me"
+          /> */}
+        </MapView>
+
+        ): (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text>Fetching location...</Text>
+          </View>
+        )}
 
       <OverlayComponent />
 
