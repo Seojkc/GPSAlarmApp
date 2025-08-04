@@ -16,9 +16,10 @@ export const PinProvider = ({ children }) => {
   }, []);
 
   // Save pins on change
-  useEffect(() => {
+  useEffect(()=>{
     savePin(pins);
-  }, [pins]);
+
+  },[pins])
 
   // Wrap dispatch for convenience
   const addPin = (pin) => dispatch({ type: 'ADD_PIN', payload: pin });
@@ -26,7 +27,7 @@ export const PinProvider = ({ children }) => {
   const removePin = (id) => dispatch({ type: 'REMOVE_PIN', payload: id });
 
   return (
-    <PinContext.Provider value={{ pins, addPin, updatePin, removePin }}>
+    <PinContext.Provider value={{ pins, addPin, updatePin, removePin }}> 
       {children}
     </PinContext.Provider>
   );

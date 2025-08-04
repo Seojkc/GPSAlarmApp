@@ -10,8 +10,8 @@ export const pinReducer = (state = [], action) =>
                     pin.id === action.payload.id ? { ...pin, ...action.payload } : pin
                 );
             case 'REMOVE_PIN':
-                return state.filter(pin => pin.id !== action.payload.id);
-            default:
+                return state.filter(pin => pin.id !== action.payload);
+            default: 
                 return state;
         }
     };

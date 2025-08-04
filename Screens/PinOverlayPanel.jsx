@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
     maxHeight: 200,
     backgroundColor: 'rgba(0,0,0,0.7)',
     padding: 10,
+    zIndex:20,
   },
   heading: {
     color: 'white',

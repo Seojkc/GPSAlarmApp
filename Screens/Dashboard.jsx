@@ -177,15 +177,17 @@ export default function Dashboard() {
   const { pins, addPin, updatePin, removePin } = useContext(PinContext);
   const [selectedPin, setSelectedPin] = useState(null);
 
+
   const handleAddPin = () => {
     if (!location) {
       Alert.alert("Location not available", "Please enable location services.");
       return;
     }
+    
 
     const newPin = {
       id: Date.now().toString(),
-      title: 'New Pin',
+      title: Date.now().toString(),
       coordinate: {
         latitude: location.latitude + (Math.random()-0.5) * 0.01,
         longitude: location.longitude + (Math.random()-0.5) * 0.01,
@@ -196,7 +198,7 @@ export default function Dashboard() {
 
   const handleRemovePin = (id) => {
     Alert.alert(
-      'Remove Pin',
+      'Remove Pin!!',
       'Are you sure?',
       [
         { text: 'Cancel' },
@@ -341,6 +343,7 @@ export default function Dashboard() {
                 draggable
                 onDragEnd={(e) => {
                   updatePin({ ...pin, coordinate: e.nativeEvent.coordinate });
+                  console.log(pins, e.nativeEvent.coordinate);
                 }}
                 onCalloutPress={() => handleRemovePin(pin.id)}
               />
