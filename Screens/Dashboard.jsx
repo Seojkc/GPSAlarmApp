@@ -178,22 +178,38 @@ export default function Dashboard() {
   const [selectedPin, setSelectedPin] = useState(null);
 
 
-  const handleAddPin = () => {
+  const handleAddPin = async () => {
     if (!location) {
       Alert.alert("Location not available", "Please enable location services.");
       return;
     }
     
+    if (!mapRef.current) return;
 
-    const newPin = {
-      id: Date.now().toString(),
-      title: Date.now().toString(),
-      coordinate: {
-        latitude: location.latitude + (Math.random()-0.5) * 0.01,
-        longitude: location.longitude + (Math.random()-0.5) * 0.01,
-      },
-    };
-    addPin(newPin);
+    try{
+      const camera = await mapRef.current.getCamera();
+      const center = camera.center;
+
+      const newPin = {
+        id: Date.now().toString(),
+        title: Date.now().toString(),
+        coordinate: {
+          latitude: center.latitude + (Math.random()-0.5) * 0.01,
+          longitude: center.longitude + (Math.random()-0.5) * 0.01,
+        },
+      };
+      addPin(newPin);
+    }catch(error){
+      const newPin = {
+        id: Date.now().toString(),
+        title: Date.now().toString(),
+        coordinate: {
+          latitude: location.latitude + (Math.random()-0.5) * 0.01,
+          longitude: location.longitude + (Math.random()-0.5) * 0.01,
+        },
+      };
+      addPin(newPin);
+    }
   };
 
   const handleRemovePin = (id) => {
