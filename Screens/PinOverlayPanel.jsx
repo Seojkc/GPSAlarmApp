@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { View, Text, StyleSheet, PanResponder, Animated } from 'react-native';
 
-export default function OverlayPanel({ pins, updatePin, removePin ,disableScreenEditPinScreen}) {
+export default function OverlayPanel({pin, pins, updatePin, removePin ,disableScreenEditPinScreen}) {
   const minHeight = 100;
   const maxHeight = 400;
 
@@ -29,10 +29,32 @@ export default function OverlayPanel({ pins, updatePin, removePin ,disableScreen
     })
   ).current;
 
+
+
+  function getCircleCoordinates(center, radius, pointsCount = 36) {
+    const coords = [];
+    const earthRadius = 6371000; // meters
+
+    for (let i = 0; i < pointsCount; i++) {
+      const angle = (i * 360) / pointsCount;
+      const radian = (Math.PI / 180) * angle;
+
+      const latOffset = (radius / earthRadius) * (180 / Math.PI) * Math.cos(radian);
+      const lngOffset = (radius / earthRadius) * (180 / Math.PI) * Math.sin(radian) / Math.cos(center.latitude * Math.PI / 180);
+
+      coords.push({
+        latitude: center.latitude + latOffset,
+        longitude: center.longitude + lngOffset
+      });
+    }
+    return coords;
+  }
+
   return disableScreenEditPinScreen?(
     <Animated.View style={[styles.overlay, { height: animatedHeight }]}>
       <View style={styles.draggler} {...panResponder.panHandlers} />
       <Text style={styles.heading}>Pins</Text>
+      <Text>{pin.id}</Text>
     </Animated.View>
   ):null;
 }

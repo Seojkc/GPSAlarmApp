@@ -193,7 +193,7 @@ export default function Dashboard() {
     const newPin = {
       id: Date.now().toString(),
       title: Date.now().toString(),
-      radius:20.0,
+      radius:200,
       property:1,
       colour: 'green',
       coordinate: {
