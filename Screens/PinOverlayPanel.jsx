@@ -1,57 +1,62 @@
-import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, StyleSheet, PanResponder, Animated } from 'react-native';
 
-export default function OverlayPanel({ pins, updatePin, removePin }) {
-  const renderItem = ({ item }) => {
-    return (
-      <View style={styles.pinItem}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.coord}>
-          Lat: {item.coordinate.latitude.toFixed(4)} | Lon: {item.coordinate.longitude.toFixed(4)}
-        </Text>
-        {/* You can add buttons or inputs here to update title or coordinate */}
-        <TouchableOpacity onPress={() => removePin(item.id)} style={styles.deleteBtn}>
-          <Text style={{ color: 'white' }}>Delete</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+export default function OverlayPanel({ pins, updatePin, removePin ,disableScreenEditPinScreen}) {
+  const minHeight = 100;
+  const maxHeight = 400;
 
-  return (
-    <View style={styles.overlay}>
+  // Start with 300 height
+  const animatedHeight = useRef(new Animated.Value(300)).current;
+  const startHeight = useRef(300);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        animatedHeight.stopAnimation((value) => {
+          startHeight.current = value;
+        });
+      },
+      onPanResponderMove: (e, gestureState) => {
+        let newHeight = startHeight.current - gestureState.dy;
+        newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
+        animatedHeight.setValue(newHeight);
+      },
+      onPanResponderRelease: () => {
+        // Optional: snap to nearest position
+        animatedHeight.flattenOffset();
+      },
+    })
+  ).current;
+
+  return disableScreenEditPinScreen?(
+    <Animated.View style={[styles.overlay, { height: animatedHeight }]}>
+      <View style={styles.draggler} {...panResponder.panHandlers} />
       <Text style={styles.heading}>Pins</Text>
-      <FlatList data={pins} keyExtractor={(item) => item.id} renderItem={renderItem} />
-    </View>
-  );
+    </Animated.View>
+  ):null;
 }
 
 const styles = StyleSheet.create({
   overlay: {
-    position: 'absolute',
     bottom: 0,
     width: '100%',
-    maxHeight: 200,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
     padding: 10,
-    zIndex:20,
+    maxHeight: 400,
+    
   },
   heading: {
     color: 'white',
     fontSize: 20,
     marginBottom: 10,
   },
-  pinItem: {
-    backgroundColor: '#333',
-    marginBottom: 8,
-    padding: 10,
-    borderRadius: 8,
-  },
-  title: { color: 'white', fontSize: 16, marginBottom: 4 },
-  coord: { color: '#ccc', fontSize: 12, marginBottom: 6 },
-  deleteBtn: {
-    backgroundColor: 'red',
-    padding: 6,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
+  draggler: {
+    width: 50,
+    height: 6,
+    backgroundColor: 'rgba(115, 115, 115, 0.9)',
+    alignSelf: 'center',
+    borderRadius: 50,
+    marginBottom: 10,
   },
 });

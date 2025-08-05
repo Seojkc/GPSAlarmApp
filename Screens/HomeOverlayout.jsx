@@ -8,6 +8,9 @@ export default function OverlayComponent() {
   const bottomHeight = height / 2;
   const minHeight = 60;
 
+  const disable = false; // Set to true to disable the overlay
+
+
   const animation = useRef(new Animated.Value(bottomHeight)).current;
   const [expanded, setExpanded] = useState(true);
 
@@ -20,7 +23,7 @@ export default function OverlayComponent() {
     setExpanded(!expanded);
   };
 
-  return (
+  return disable ? (
     <Animated.View style={[styles.overlay, { height: animation }]}>
       <TouchableOpacity style={styles.arrowContainer} onPress={toggleOverlay}>
         <Text style={{ fontSize: 40, color: 'white',left: width / 2 - 50 }}>
@@ -33,7 +36,7 @@ export default function OverlayComponent() {
         </View>
       )}
     </Animated.View>
-  );
+  ):null;
 }
 
 const styles = StyleSheet.create({

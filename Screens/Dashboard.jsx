@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DraggableMarkers,{ STORAGE_KEY } from './Markers'; // import the storage key
 import { PinContext } from '../Context/PinContext';
 import OverlayPanel from './PinOverlayPanel';
+import { current } from '@reduxjs/toolkit';
 
 const darkMapStyle = 
   [
@@ -176,6 +177,9 @@ export default function Dashboard() {
 
   const { pins, addPin, updatePin, removePin } = useContext(PinContext);
   const [selectedPin, setSelectedPin] = useState(null);
+  const [currentPin, setCurrentPin] = useState(null);
+
+  const [disableScreenEditPinScreen, setDisableScreenEditPinScreen] = useState(false); // State to control the overlay visibility
 
 
   const handleAddPin = async () => {
@@ -186,30 +190,37 @@ export default function Dashboard() {
     
     if (!mapRef.current) return;
 
+    const newPin = {
+      id: Date.now().toString(),
+      title: Date.now().toString(),
+      radius:20.0,
+      property:1,
+      colour: 'green',
+      coordinate: {
+        latitude: location.latitude + (Math.random()-0.5) * 0.01,
+        longitude: location.longitude + (Math.random()-0.5) * 0.01,
+      },
+    };
+
     try{
       const camera = await mapRef.current.getCamera();
       const center = camera.center;
 
-      const newPin = {
-        id: Date.now().toString(),
-        title: Date.now().toString(),
-        coordinate: {
-          latitude: center.latitude + (Math.random()-0.5) * 0.01,
-          longitude: center.longitude + (Math.random()-0.5) * 0.01,
-        },
+      newPin.coordinate = {
+        latitude: center.latitude + (Math.random()-0.5) * 0.01,
+        longitude: center.longitude + (Math.random()-0.5) * 0.01
       };
-      addPin(newPin);
+      
     }catch(error){
-      const newPin = {
-        id: Date.now().toString(),
-        title: Date.now().toString(),
-        coordinate: {
+      newPin.coordinate= {
           latitude: location.latitude + (Math.random()-0.5) * 0.01,
           longitude: location.longitude + (Math.random()-0.5) * 0.01,
-        },
-      };
-      addPin(newPin);
+        };
     }
+
+    addPin(newPin);
+    setDisableScreenEditPinScreen(true);
+    setCurrentPin(newPin);
   };
 
   const handleRemovePin = (id) => {
@@ -356,6 +367,7 @@ export default function Dashboard() {
                 key={pin.id}
                 coordinate={pin.coordinate}
                 title={pin.title}
+                pinColor={pin.colour}
                 draggable
                 onDragEnd={(e) => {
                   updatePin({ ...pin, coordinate: e.nativeEvent.coordinate });
@@ -384,11 +396,13 @@ export default function Dashboard() {
       </TouchableOpacity>
 
       <OverlayPanel
-        pins={pins}
+        pin={currentPin}
         updatePin={updatePin}
         removePin={removePin}
         selectedPin={selectedPin}
         setSelectedPin={setSelectedPin}
+        disableScreenEditPinScreen={disableScreenEditPinScreen}
+        setDisableScreenEditPinScreen={setDisableScreenEditPinScreen}
       />
     </View>
   );
