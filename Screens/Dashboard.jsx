@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef,useContext } from 'react';
 import { View, PermissionsAndroid, Platform, TouchableOpacity, Text, StyleSheet,Alert  } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Circle, Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import OverlayComponent from './HomeOverlayout'; // import correctly!
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -224,18 +224,8 @@ export default function Dashboard() {
   };
 
   const handleRemovePin = (id) => {
-    Alert.alert(
-      'Remove Pin!!',
-      'Are you sure?',
-      [
-        { text: 'Cancel' },
-        {
-          text: 'Remove',
-          onPress: () => removePin(id),
-          style: 'destructive',
-        },
-      ]
-    );
+    setDisableScreenEditPinScreen(true);
+    setCurrentPin(pins.find(pin => pin.id === id));
   };
 
 
@@ -363,18 +353,31 @@ export default function Dashboard() {
         >
           <Marker coordinate={location} title="You are here" />
           {pins.map((pin) => (
+            <React.Fragment key={pin.id}>
               <Marker
                 key={pin.id}
                 coordinate={pin.coordinate}
-                title={pin.title}
+                title='Change Details'
                 pinColor={pin.colour}
                 draggable
+                onDrag={(e) => {
+                  updatePin({ ...pin, coordinate: e.nativeEvent.coordinate });
+                }}
                 onDragEnd={(e) => {
                   updatePin({ ...pin, coordinate: e.nativeEvent.coordinate });
                   console.log(pins, e.nativeEvent.coordinate);
                 }}
                 onCalloutPress={() => handleRemovePin(pin.id)}
               />
+
+              <Circle
+                center={pin.coordinate}
+                radius={pin.radius}
+                color={pin.colour}
+                strokeColor={pin.colour}
+                fillColor={`${pin.colour}33`}
+                />
+            </React.Fragment>
             ))}
         </MapView>
 

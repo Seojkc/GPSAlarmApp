@@ -53,8 +53,9 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
   return disableScreenEditPinScreen?(
     <Animated.View style={[styles.overlay, { height: animatedHeight }]}>
       <View style={styles.draggler} {...panResponder.panHandlers} />
-      <Text style={styles.heading}>Pins</Text>
       <Text>{pin.id}</Text>
+      
+
     </Animated.View>
   ):null;
 }
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   draggler: {
-    width: 50,
+    width: 100,
     height: 6,
     backgroundColor: 'rgba(115, 115, 115, 0.9)',
     alignSelf: 'center',
