@@ -35,28 +35,14 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
     })
   ).current;
 
+  const colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#FFA500"];
+  const [selectedColor, setSelectedColor] = useState(null);
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setValue((prev) => {
-  //       if (prev >= 500) {
-  //         clearInterval(interval);
-  //         return 500;
-  //       }
-  //       return prev + 10; // increment
-  //     });
-  //   }, 200); // update every 200ms
+  const handleSelect = (color) => {
+    setSelectedColor(color);
+    
+  };
 
-  //   return () => clearInterval(interval);
-  // }, []);
-
-  //const progress = (pin.radius -100)/(500-100);
-  //const [value, setValue] = useState(100);
-
-  // useEffect(()=>{
-  //   pin.radius = value;
-  //   updatePin(pin);
-  // },[value])
 
   function getCircleCoordinates(center, radius, pointsCount = 36) {
     const coords = [];
@@ -79,7 +65,9 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
 
   return disableScreenEditPinScreen?(
     <Animated.View style={[styles.overlay, { height: animatedHeight }]}>
-      <View style={styles.draggler} {...panResponder.panHandlers} />
+      <View style={{height:20,paddingBottom:12,paddingTop:0}}  {...panResponder.panHandlers} >
+        <View style={styles.draggler}></View>
+      </View>
       <ScrollView>
 
       
@@ -142,6 +130,22 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
           />
 
       </View>
+      <View>
+          <Text style={{color:'rgba(202, 202, 202, 1)',fontSize:20,marginRight:'50',paddingTop:30}}>Colour </Text>
+          <View style={styles.colorContainer}>
+            {colors.map((color) => (
+              <TouchableOpacity
+                key={color}
+                style={[
+                  styles.colorCircle,
+                  { backgroundColor: color },
+                  selectedColor === color && styles.colorSelected
+                ]}
+                onPress={() => handleSelect(color)}
+              />
+            ))}
+          </View>
+      </View>
 
       
     </ScrollView>
@@ -165,7 +169,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 1)',
   },
 
-
+  colorContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10,
+  },
+  colorCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  colorSelected: {
+    borderColor: "#fff", // stroke color for selection
+    borderWidth: 3,
+  },
 
 
   overlay: {
@@ -184,7 +203,7 @@ const styles = StyleSheet.create({
   },
   draggler: {
     width: 100,
-    height: 20,
+    height: 6,
     backgroundColor: 'rgba(98, 98, 98, 0.9)',
     alignSelf: 'center',
     borderRadius: 50,

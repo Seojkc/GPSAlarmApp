@@ -232,7 +232,7 @@ export default function Dashboard() {
 
 
   const [location, setLocation] = useState(null);
-
+  const [markerClicked, setMarkerClicked] = useState(false);
 
   const mapRef = useRef(null);
 
@@ -367,6 +367,10 @@ export default function Dashboard() {
                   updatePin({ ...pin, coordinate: e.nativeEvent.coordinate });
                   console.log(pins, e.nativeEvent.coordinate);
                 }}
+                onPress={() => {
+                  setMarkerClicked(true);
+                  disableScreenEditPinScreen && setCurrentPin(pin);
+                }}
                 onCalloutPress={() => handleRemovePin(pin.id)}
               />
 
@@ -375,7 +379,7 @@ export default function Dashboard() {
                 radius={pin.radius}
                 color={pin.colour}
                 strokeColor={pin.colour}
-                fillColor={`${pin.colour}33`}
+                fillColor={`${pin.colour}20`}
                 />
             </React.Fragment>
             ))}
