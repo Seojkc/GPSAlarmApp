@@ -1,5 +1,5 @@
 import React, { useRef,useEffect,useState } from 'react';
-import { View, Text, StyleSheet, PanResponder, Animated,TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, PanResponder, Animated,TouchableOpacity,TextInput, ScrollView } from 'react-native';
 import Slider from '@react-native-community/slider';
 import * as Progress from 'react-native-progress';
 
@@ -80,7 +80,10 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
   return disableScreenEditPinScreen?(
     <Animated.View style={[styles.overlay, { height: animatedHeight }]}>
       <View style={styles.draggler} {...panResponder.panHandlers} />
-      <Text>{pin.id}</Text>
+      <ScrollView>
+
+      
+      
 
       <View style={{display:'flex',flexDirection:'row',paddingVertical:20,justifyContent:'space-between'}}>
         <Text style={{color:'rgba(202, 202, 202, 1)',fontSize:20,marginRight:'50'}}>Transition </Text>
@@ -125,11 +128,23 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
         
       </View>
       <View> 
+          <Text style={{color:'rgba(202, 202, 202, 1)',fontSize:20,marginRight:'50',paddingVertical:10}}>Title </Text>
+
+          <TextInput
+            style={{height: 40, borderColor: 'gray', borderWidth: 1, color:'white',paddingLeft:10}}
+            placeholder="Enter Pin Title"
+            placeholderTextColor="rgba(202, 202, 202, 1)"
+            value={pin.title}
+            onChangeText={(text) => {
+              pin.title = text;
+              updatePin(pin);
+            }}
+          />
 
       </View>
 
       
-
+    </ScrollView>
     </Animated.View>
   ):null;
 }
@@ -159,7 +174,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.9)',
     padding: 10,
     maxHeight: 400,
-    
+    flexShrink:0,
+    paddingVertical:20,
   },
   heading: {
     color: 'white',
@@ -168,10 +184,9 @@ const styles = StyleSheet.create({
   },
   draggler: {
     width: 100,
-    height: 6,
-    backgroundColor: 'rgba(115, 115, 115, 0.9)',
+    height: 20,
+    backgroundColor: 'rgba(98, 98, 98, 0.9)',
     alignSelf: 'center',
     borderRadius: 50,
-    marginBottom: 10,
   },
 });
