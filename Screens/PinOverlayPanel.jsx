@@ -1,7 +1,13 @@
-import React, { useRef } from 'react';
-import { View, Text, StyleSheet, PanResponder, Animated } from 'react-native';
+import React, { useRef,useEffect,useState } from 'react';
+import { View, Text, StyleSheet, PanResponder, Animated,TouchableOpacity } from 'react-native';
+import Slider from '@react-native-community/slider';
+import * as Progress from 'react-native-progress';
 
-export default function OverlayPanel({pin, pins, updatePin, removePin ,disableScreenEditPinScreen}) {
+
+export default function OverlayPanel({pin, pins, updatePin, removePin ,disableScreenEditPinScreen}) 
+{
+
+  
   const minHeight = 100;
   const maxHeight = 400;
 
@@ -30,6 +36,27 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
   ).current;
 
 
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setValue((prev) => {
+  //       if (prev >= 500) {
+  //         clearInterval(interval);
+  //         return 500;
+  //       }
+  //       return prev + 10; // increment
+  //     });
+  //   }, 200); // update every 200ms
+
+  //   return () => clearInterval(interval);
+  // }, []);
+
+  //const progress = (pin.radius -100)/(500-100);
+  //const [value, setValue] = useState(100);
+
+  // useEffect(()=>{
+  //   pin.radius = value;
+  //   updatePin(pin);
+  // },[value])
 
   function getCircleCoordinates(center, radius, pointsCount = 36) {
     const coords = [];
@@ -54,6 +81,53 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
     <Animated.View style={[styles.overlay, { height: animatedHeight }]}>
       <View style={styles.draggler} {...panResponder.panHandlers} />
       <Text>{pin.id}</Text>
+
+      <View style={{display:'flex',flexDirection:'row',paddingVertical:20,justifyContent:'space-between'}}>
+        <Text style={{color:'rgba(202, 202, 202, 1)',fontSize:20,marginRight:'50'}}>Transition </Text>
+        <View style={{display:'flex',flexDirection:'row',justifyContent:'space-between'}}>
+          <TouchableOpacity style={[
+            styles.transitionButton,
+            pin.property == 1 && styles.transitionBUttonclicked
+            ]} onPress={()=>{pin.property = 1; updatePin(pin);}}>
+            <Text>Enter</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[
+            styles.transitionButton,
+            pin.property == 0 && styles.transitionBUttonclicked
+            ]} onPress={()=>{pin.property = 0; updatePin(pin);}}>
+            <Text>Exit</Text>
+          </TouchableOpacity>
+        </View>
+        
+      </View>
+      <View>
+        <Text style={{color:'rgba(202, 202, 202, 1)',fontSize:20,marginRight:'50',paddingVertical:10}}>Radius </Text>
+        
+
+        <View style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+          <Slider
+            style={{ width: 300, height: 40 }}
+            minimumValue={100}
+            maximumValue={500}
+            step={10}
+            value={pin.radius}
+            minimumTrackTintColor="#4caf50"
+            maximumTrackTintColor="#ccc"
+            thumbTintColor="#4caf50"
+            onValueChange={(val) => {
+              pin.radius = val;
+              updatePin(pin);
+              console.log(pin)
+            }}
+          />
+          <Text style={{color:'white',paddingRight:'30'}}>{pin.radius}</Text>
+        </View>
+        
+      </View>
+      <View> 
+
+      </View>
+
       
 
     </Animated.View>
@@ -61,6 +135,24 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
 }
 
 const styles = StyleSheet.create({
+
+
+  transitionButton:{
+    backgroundColor: 'rgba(161, 161, 161, 1)',
+    padding: 10,
+    borderRadius: 5,
+    marginLeft: 10,
+    marginRight: 10,
+    color: 'black',
+    fontSize: 16,
+  },
+  transitionBUttonclicked:{
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+  },
+
+
+
+
   overlay: {
     bottom: 0,
     width: '100%',
