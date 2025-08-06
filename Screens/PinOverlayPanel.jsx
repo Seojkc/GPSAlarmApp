@@ -4,12 +4,16 @@ import Slider from '@react-native-community/slider';
 import * as Progress from 'react-native-progress';
 
 
-export default function OverlayPanel({pin, pins, updatePin, removePin ,disableScreenEditPinScreen}) 
+export default function OverlayPanel({pin, pins, updatePin, removePin ,disableScreenEditPinScreen,setDisableScreenEditPinScreen}) 
 {
 
   
   const minHeight = 100;
   const maxHeight = 400;
+
+  function disableScreenEditPinScreenFunction(){
+    disableScreenEditPinScreen=false;
+  }
 
   // Start with 300 height
   const animatedHeight = useRef(new Animated.Value(300)).current;
@@ -35,11 +39,16 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
     })
   ).current;
 
-  const colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#FFA500"];
+  const colors = ['red', 'green', 'blue', 'yellow','lightblue', 'orange', 'purple','cyan'];
   const [selectedColor, setSelectedColor] = useState(null);
 
   const handleSelect = (color) => {
     setSelectedColor(color);
+    console.log(`Selected color: ${pin.colour}`);
+    pin.colour = color;
+    updatePin(pin);
+    console.log(`Selected color: ${pin.colour}`);
+
     
   };
 
@@ -147,6 +156,20 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
           </View>
       </View>
 
+
+      <View style={{paddingBottom:10,display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
+        <TouchableOpacity
+          onPress={()=>{ removePin(pin.id);setDisableScreenEditPinScreen(false);}}
+        >
+          <Text style={{color:'red',fontSize:18,paddingTop:20,textAlign:'center'}}>Remove</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={()=>{setDisableScreenEditPinScreen(false);}}
+        >
+          <Text style={{color:'green',fontSize:18,paddingTop:20,textAlign:'center'}}>Save</Text>
+        </TouchableOpacity>
+      </View>
+
       
     </ScrollView>
     </Animated.View>
@@ -175,11 +198,13 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   colorCircle: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     borderRadius: 20,
     borderWidth: 2,
     borderColor: "transparent",
+    paddingHorizontal:5,
+
   },
   colorSelected: {
     borderColor: "#fff", // stroke color for selection

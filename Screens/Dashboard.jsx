@@ -355,7 +355,7 @@ export default function Dashboard() {
           {pins.map((pin) => (
             <React.Fragment key={pin.id}>
               <Marker
-                key={pin.id}
+                key={`${pin.id}-${pin.colour}`} 
                 coordinate={pin.coordinate}
                 title='Change Details'
                 pinColor={pin.colour}
@@ -421,19 +421,20 @@ const styles = StyleSheet.create({
   plusButton: {
     position: 'absolute',
     top: 70,
-    right: 10,
+    right: 20,
     backgroundColor: '#2196F3',
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 6,
     zIndex: 20,
+    padding: 0,
+    paddingBottom:10,
   },
   plusText: {
-    fontSize: 30,
+    fontSize: 40,
     color: 'white',
-    fontWeight: 'bold',
   },
 });
