@@ -9,6 +9,7 @@ import { PinContext } from '../Context/PinContext';
 import OverlayPanel from './PinOverlayPanel';
 import { current } from '@reduxjs/toolkit';
 
+
 const darkMapStyle = 
   [
     {
@@ -339,7 +340,7 @@ export default function Dashboard() {
           showsUserLocation={true}
           zoomEnabled={true}
           customMapStyle={darkMapStyle}
-          zoomControlEnabled={true}
+          zoomControlEnabled={false}
           region={
             location
               ? {
@@ -393,11 +394,8 @@ export default function Dashboard() {
 
       <OverlayComponent />
 
-      <TouchableOpacity
-        style={styles.plusButton}
-        onPress={handleAddPin}
-      >
-        <View>
+      <TouchableOpacity style={styles.plusButton} onPress={handleAddPin}>
+        <View style={styles.innerPlus}>
           <Text style={styles.plusText}>+</Text>
         </View>
       </TouchableOpacity>
@@ -418,23 +416,51 @@ export default function Dashboard() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   mapView: { flex: 1 },
+
+
   plusButton: {
     position: 'absolute',
     top: 70,
     right: 20,
-    backgroundColor: '#2196F3',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(33, 150, 243, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#00e5ff',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 12,
+    zIndex: 20,
+  },
+
+  innerPlus: {
     width: 50,
     height: 50,
-    borderRadius: 30,
-    alignItems: 'center',
+    borderRadius: 25,
+    backgroundColor: '#2196F3',
     justifyContent: 'center',
-    elevation: 6,
-    zIndex: 20,
-    padding: 0,
-    paddingBottom:10,
+    alignItems: 'center',
+    position: 'relative',
   },
+
   plusText: {
     fontSize: 40,
-    color: 'white',
+    color: '#ffffff',
+    fontWeight: '600',
+    position: 'absolute',
+    top: '35%',
+    left: '53%',
+    transform: [
+      { translateX: -12 },
+      { translateY: -20 }
+    ],
+    textShadowColor: '#00e5ff',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 10,
   },
 });

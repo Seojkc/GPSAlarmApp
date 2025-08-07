@@ -44,10 +44,8 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
 
   const handleSelect = (color) => {
     setSelectedColor(color);
-    console.log(`Selected color: ${pin.colour}`);
     pin.colour = color;
     updatePin(pin);
-    console.log(`Selected color: ${pin.colour}`);
 
     
   };
@@ -117,7 +115,6 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
             onValueChange={(val) => {
               pin.radius = val;
               updatePin(pin);
-              console.log(pin)
             }}
           />
           <Text style={{color:'white',paddingRight:'30'}}>{pin.radius}</Text>
@@ -161,12 +158,12 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
         <TouchableOpacity
           onPress={()=>{ removePin(pin.id);setDisableScreenEditPinScreen(false);}}
         >
-          <Text style={{color:'red',fontSize:18,paddingTop:20,textAlign:'center'}}>Remove</Text>
+          <Text style={{color:'rgba(255, 93, 93, 1)',fontSize:18,paddingTop:20,textAlign:'center'}}>Remove</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={()=>{setDisableScreenEditPinScreen(false);}}
         >
-          <Text style={{color:'green',fontSize:18,paddingTop:20,textAlign:'center'}}>Save</Text>
+          <Text style={{color:'rgba(165, 255, 105, 1)',fontSize:18,paddingTop:20,textAlign:'center'}}>Save</Text>
         </TouchableOpacity>
       </View>
 
