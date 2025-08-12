@@ -8,9 +8,10 @@ import DraggableMarkers,{ STORAGE_KEY } from './Markers'; // import the storage 
 import { PinContext } from '../Context/PinContext';
 import OverlayPanel from './PinOverlayPanel';
 import { current } from '@reduxjs/toolkit';
+import GeofenceChecker from '../Components/GeoFencerMain';
+import LocationPermission from '../Components/LocationPermission';
 
-
-const darkMapStyle = 
+const darkMapStyle =  
   [
     {
       "elementType": "geometry",
@@ -251,85 +252,8 @@ export default function Dashboard() {
   }, [location]);
 
   useEffect(() => {
-  const requestLocationPermission = async () => {
-    try {
-      let hasPermission = true;
 
-      if (Platform.OS === 'android') {
-      try {
-        const fineGranted = await PermissionsAndroid.check(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-        );
-        const coarseGranted = await PermissionsAndroid.check(
-          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
-        );
-
-        if (!fineGranted || !coarseGranted) {
-          const granted = await PermissionsAndroid.requestMultiple([
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
-          ]);
-
-          if (
-            granted['android.permission.ACCESS_FINE_LOCATION'] !== PermissionsAndroid.RESULTS.GRANTED ||
-            granted['android.permission.ACCESS_COARSE_LOCATION'] !== PermissionsAndroid.RESULTS.GRANTED
-          ) {
-            Alert.alert(
-              'Permission Denied',
-              'Please enable location permission from settings.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Open Settings', onPress: () => PermissionsAndroid.openSettings() }
-              ]
-            );
-            return;
-          }
-        }
-      } catch (err) {
-        console.warn(err);
-        return;
-      }
-    }
-
-      if (hasPermission) {
-        Geolocation.getCurrentPosition(
-          position => {
-            const { latitude, longitude } = position.coords;
-            setLocation({ latitude, longitude });
-          },
-         error => {
-            console.error('Location error:', error);
-
-            switch (error.code) {
-              case 1:
-                Alert.alert('Permission Denied', 'Please allow location access.');
-                break;
-              case 2:
-                Alert.alert('Location Unavailable', 'Could not determine location.');
-                break;
-              case 3:
-                Alert.alert('Timeout', 'Location request timed out.');
-                break;
-              default:
-                Alert.alert('Error', error.message);
-            }
-          },
-          {
-            enableHighAccuracy: false,
-            timeout: 15000,
-            distanceFilter: 10,
-            forceRequestLocation: true,
-            showLocationDialog: true
-          }
-        );
-      }
-    } catch (err) {
-      console.error('Permission error:', err);
-    }
-  };
-
-  requestLocationPermission();
-}, []);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -400,6 +324,8 @@ export default function Dashboard() {
         </View>
       </TouchableOpacity>
 
+      <GeofenceChecker/>
+      <LocationPermission onLocation={setLocation}/>
       <OverlayPanel
         pin={currentPin}
         updatePin={updatePin}
