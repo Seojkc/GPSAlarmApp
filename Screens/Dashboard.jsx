@@ -10,6 +10,9 @@ import OverlayPanel from './PinOverlayPanel';
 import { current } from '@reduxjs/toolkit';
 import GeofenceChecker from '../Components/GeoFencerMain';
 import LocationPermission from '../Components/LocationPermission';
+import PushNotification from 'react-native-push-notification';
+import NotificationPermission from '../Components/NotificationPermission';
+
 
 const darkMapStyle =  
   [
@@ -177,6 +180,12 @@ const darkMapStyle =
 export default function Dashboard() {
 
 
+  PushNotification.localNotification({
+    channelId: "geofence-channel",
+    title: "Test Notification",
+    message: "This is a test",
+  });
+
   const { pins, addPin, updatePin, removePin } = useContext(PinContext);
   const [selectedPin, setSelectedPin] = useState(null);
   const [currentPin, setCurrentPin] = useState(null);
@@ -290,7 +299,6 @@ export default function Dashboard() {
                 }}
                 onDragEnd={(e) => {
                   updatePin({ ...pin, coordinate: e.nativeEvent.coordinate });
-                  console.log(pins, e.nativeEvent.coordinate);
                 }}
                 onPress={() => {
                   setMarkerClicked(true);
@@ -325,6 +333,7 @@ export default function Dashboard() {
       </TouchableOpacity>
 
       <GeofenceChecker/>
+      <NotificationPermission/>
       <LocationPermission onLocation={setLocation}/>
       <OverlayPanel
         pin={currentPin}

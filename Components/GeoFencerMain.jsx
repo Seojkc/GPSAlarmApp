@@ -1,9 +1,41 @@
 import React, { useEffect,useState, useRef, useContext } from 'react';
 import Geolocation from '@react-native-community/geolocation';
+import PushNotification from "react-native-push-notification";
 import RequestLocationPermission from './LocationPermission';
 import { PinContext } from '../Context/PinContext';
 
+
+
+
+
+
+
 export default function GeofenceChecker() {
+
+  useEffect(() => {
+    // Create notification channel (Android specific)
+    PushNotification.createChannel(
+      {
+        channelId: "geofence",
+        channelName: "Geofence Alerts",
+        channelDescription: "Notifications for geofence entry/exit",
+        importance: 4,
+        vibrate: true,
+      },
+      (created) => console.log(`Channel 'geofence' ${created ? "created" : "exists"}`)
+    );
+  }, []);
+  const triggerNotification = (title, message) => {
+    PushNotification.localNotification({
+      channelId: "geofence",
+      title: title,
+      message: message,
+      playSound: true,
+      soundName: "default",
+      vibrate: true,
+    });
+  };
+
 
   const { pins, addPin, updatePin, removePin } = useContext(PinContext);
   const insideStatus = useRef({});
@@ -43,18 +75,28 @@ export default function GeofenceChecker() {
                     insideStatus.current[pin.id] = isInside;
                     if (isInside && pin.property ==1) 
                         {
-                        console.log(`ENTERED pin ${pin.id}`);
+                          console.log("Entered")
+
+                          triggerNotification(
+                            `Entered`,
+                            `You've arrived at ${pin.title || "the location"}`
+                          );
                         } 
                     else if (!isInside && pin.property ==0) 
                         {
-                            console.log(`EXITED pin ${pin.id}`);
+                          console.log("Exited")
+
+                          triggerNotification(
+                            `Exited`,
+                            `You've Exited from ${pin.title || "the location"}`
+                          );
                         }
                 }
             });
 
             },
             (err) => console.warn(err),
-            { enableHighAccuracy: true, distanceFilter: 1 }
+            { enableHighAccuracy: true, distanceFilter: 0, interval: 1000, fastestInterval: 500 }
         );
 
         return () => Geolocation.clearWatch(watchId);
