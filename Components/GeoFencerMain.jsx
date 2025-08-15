@@ -39,6 +39,8 @@ export default function GeofenceChecker() {
 
   const { pins, addPin, updatePin, removePin } = useContext(PinContext);
   const insideStatus = useRef({});
+  const initialized = useRef(false); 
+
   const [location, setLocation] = useState(null);
 
   const getDistance = (lat1, lon1, lat2, lon2) => {
@@ -54,53 +56,54 @@ export default function GeofenceChecker() {
   };
 
     useEffect(() => {
-        if (!location) return;
+      if (!location) return;
 
-        const watchId = Geolocation.watchPosition(
-            (pos) => {
-            const { latitude, longitude } = pos.coords;
+      const watchId = Geolocation.watchPosition(
+          (pos) => {
+              const { latitude, longitude } = pos.coords;
+              const currentlyInsidePins = [];
 
-            // New empty array per location update
-            const currentlyInsidePins = [];
+              pins.forEach((pin) => {
+                  const distance = getDistance(latitude, longitude, pin.coordinate.latitude, pin.coordinate.longitude);
+                  const isInside = distance <= pin.radius;
 
-            pins.forEach((pin) => {
-                const distance = getDistance(latitude, longitude, pin.coordinate.latitude, pin.coordinate.longitude);
-                const isInside = distance <= pin.radius;
+                  currentlyInsidePins.push(isInside);
 
-                if (isInside) {
-                currentlyInsidePins.push(pin.title || pin.id);
-                }
-                if (insideStatus.current[pin.id] !== isInside) 
-                {
-                    insideStatus.current[pin.id] = isInside;
-                    if (isInside && pin.property ==1) 
-                        {
-                          console.log("Entered")
+                  // Only trigger notification AFTER initialization
+                  if (initialized.current) {
+                      if (insideStatus.current[pin.id] !== isInside) {
+                          insideStatus.current[pin.id] = isInside;
 
-                          triggerNotification(
-                            `Entered`,
-                            `You've arrived at ${pin.title || "the location"}`
-                          );
-                        } 
-                    else if (!isInside && pin.property ==0) 
-                        {
-                          console.log("Exited")
+                          if (isInside && pin.property === 1) {
+                              console.log("Entered");
+                              triggerNotification(
+                                  `Entered`,
+                                  `You've arrived at ${pin.title || "the location"}`
+                              );
+                          } else if (!isInside && pin.property === 0) {
+                              console.log("Exited");
+                              triggerNotification(
+                                  `Exited`,
+                                  `You've Exited from ${pin.title || "the location"}`
+                              );
+                          }
+                      }
+                  } else {
+                      // Initialize the status without triggering
+                      insideStatus.current[pin.id] = isInside;
+                  }
+              });
 
-                          triggerNotification(
-                            `Exited`,
-                            `You've Exited from ${pin.title || "the location"}`
-                          );
-                        }
-                }
-            });
+              // After the first run, mark as initialized
+              if (!initialized.current) initialized.current = true;
 
-            },
-            (err) => console.warn(err),
-            { enableHighAccuracy: true, distanceFilter: 0, interval: 1000, fastestInterval: 500 }
-        );
+          },
+          (err) => console.warn(err),
+          { enableHighAccuracy: true, distanceFilter: 0, interval: 1000, fastestInterval: 500 }
+      );
 
-        return () => Geolocation.clearWatch(watchId);
-    }, [pins, location]);  
+      return () => Geolocation.clearWatch(watchId);
+  }, [pins, location]); 
 
   return <RequestLocationPermission onLocation={setLocation}/>
 }
