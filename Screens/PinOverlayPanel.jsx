@@ -2,6 +2,7 @@ import React, { useRef,useEffect,useState } from 'react';
 import { View, Text, StyleSheet, PanResponder, Animated,TouchableOpacity,TextInput, ScrollView } from 'react-native';
 import Slider from '@react-native-community/slider';
 import * as Progress from 'react-native-progress';
+import CheckBox from '@react-native-community/checkbox';
 
 
 export default function OverlayPanel({pin, pins, updatePin, removePin ,disableScreenEditPinScreen,setDisableScreenEditPinScreen}) 
@@ -136,8 +137,21 @@ export default function OverlayPanel({pin, pins, updatePin, removePin ,disableSc
           />
 
       </View>
+      <View style={{marginVertical:'20'}}>
+        <View style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+          <Text style={{color:'rgba(202, 202, 202, 1)',fontSize:20,marginRight:'50',paddingVertical:10}}>Alarm ringtone :</Text>
+          <CheckBox 
+            value={pin.sound} 
+            onValueChange={(value)=>{
+              pin.sound= value;
+              updatePin(pin);
+            }}
+            tintColors={{ true: '#21f352ff', false: '#aaa' }}
+          />
+        </View>
+      </View>
       <View>
-          <Text style={{color:'rgba(202, 202, 202, 1)',fontSize:20,marginRight:'50',paddingTop:30}}>Colour </Text>
+          <Text style={{color:'rgba(202, 202, 202, 1)',fontSize:20,marginRight:'50',paddingTop:0}}>Colour </Text>
           <View style={styles.colorContainer}>
             {colors.map((color) => (
               <TouchableOpacity

@@ -206,6 +206,7 @@ export default function Dashboard() {
       title: Date.now().toString(),
       radius:200,
       property:1,
+      sound:false,
       colour: 'green',
       coordinate: {
         latitude: location.latitude + (Math.random()-0.5) * 0.01,
@@ -333,8 +334,10 @@ export default function Dashboard() {
       </TouchableOpacity>
 
       <GeofenceChecker/>
-      <NotificationPermission/>
-      <LocationPermission onLocation={setLocation}/>
+
+      <LocationPermission 
+        onLocation={setLocation}
+      />
       <OverlayPanel
         pin={currentPin}
         updatePin={updatePin}
