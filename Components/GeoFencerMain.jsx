@@ -3,7 +3,7 @@ import Geolocation from '@react-native-community/geolocation';
 import PushNotification from "react-native-push-notification";
 import RequestLocationPermission from './LocationPermission';
 import { PinContext } from '../Context/PinContext';
-
+import  Alarm from './Alarm';
 
 
 
@@ -36,7 +36,7 @@ export default function GeofenceChecker() {
     });
   };
 
-
+  const [alarmOn, setAlarmOn] = useState(false);
   const { pins, addPin, updatePin, removePin } = useContext(PinContext);
   const insideStatus = useRef({});
   const initialized = useRef(false); 
@@ -74,18 +74,26 @@ export default function GeofenceChecker() {
                       if (insideStatus.current[pin.id] !== isInside) {
                           insideStatus.current[pin.id] = isInside;
 
-                          if (isInside && pin.property === 1) {
+                          if (isInside && pin.property === 1) 
+                            {
                               console.log("Entered");
                               triggerNotification(
                                   `Entered`,
                                   `You've arrived at ${pin.title || "the location"}`
                               );
-                          } else if (!isInside && pin.property === 0) {
+                              setAlarmOn(true);
+                            } 
+                          else if (!isInside && pin.property === 0) 
+                            {
                               console.log("Exited");
                               triggerNotification(
                                   `Exited`,
                                   `You've Exited from ${pin.title || "the location"}`
                               );
+                              setAlarmOn(true);
+                            }
+                          else{
+                            console.log("No action for this pin property");
                           }
                       }
                   } else {
@@ -105,5 +113,11 @@ export default function GeofenceChecker() {
       return () => Geolocation.clearWatch(watchId);
   }, [pins, location]); 
 
-  return <RequestLocationPermission onLocation={setLocation}/>
+  return (
+    <>
+      <RequestLocationPermission onLocation={setLocation}/>
+
+      <Alarm play={alarmOn} onStop={() => setAlarmOn(false)} />
+    </>
+  )
 }

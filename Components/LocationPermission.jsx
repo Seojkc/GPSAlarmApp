@@ -4,37 +4,31 @@ import Geolocation from '@react-native-community/geolocation';
 
 export default function LocationPermission({ onLocation }) {
   const requestLocation = () => {
-    // Fast coarse location first
+    
+    
     Geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         onLocation && onLocation({ latitude, longitude });
+
+        // Step 2: Try high-accuracy location in the background
+        Geolocation.getCurrentPosition(
+          (highAccPosition) => {
+            const { latitude, longitude } = highAccPosition.coords;
+            onLocation && onLocation({ latitude, longitude }); // update with precise location
+          },
+          (error) => {
+            console.warn('High accuracy failed, staying with coarse location:', error);
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
       },
       (error) => {
-        console.warn('Fast location error:', error);
+        console.warn('Coarse location failed:', error);
       },
-      {
-        enableHighAccuracy: false,
-        timeout: 5000,
-        maximumAge: 10000,
-      }
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 10000 }
     );
 
-    // Then high-accuracy GPS
-    Geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        onLocation && onLocation({ latitude, longitude });
-      },
-      (error) => {
-        console.warn('Precise location error:', error);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0,
-      }
-    );
   };
 
   useEffect(() => {
