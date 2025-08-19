@@ -18,7 +18,7 @@ export default function LocationPermission({ onLocation }) {
             onLocation && onLocation({ latitude, longitude }); // update with precise location
           },
           (error) => {
-            console.warn('High accuracy failed, staying with coarse location:', error);
+            
           },
           { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );

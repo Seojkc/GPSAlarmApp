@@ -1,16 +1,19 @@
-import React, { useEffect,useState, useRef, useContext } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import Geolocation from '@react-native-community/geolocation';
 import PushNotification from "react-native-push-notification";
 import RequestLocationPermission from './LocationPermission';
 import { PinContext } from '../Context/PinContext';
-import  Alarm from './Alarm';
-
-
-
-
-
+import Alarm from './Alarm';
 
 export default function GeofenceChecker() {
+
+  const [alarmOn, setAlarmOn] = useState(false);
+  const { pins, addPin, updatePin, removePin } = useContext(PinContext);
+  const insideStatus = useRef({});
+  const initialized = useRef(false);
+  const pendingTimers = useRef({});
+
+  const [location, setLocation] = useState(null);
 
   useEffect(() => {
     // Create notification channel (Android specific)
@@ -25,6 +28,7 @@ export default function GeofenceChecker() {
       (created) => console.log(`Channel 'geofence' ${created ? "created" : "exists"}`)
     );
   }, []);
+
   const triggerNotification = (title, message) => {
     PushNotification.localNotification({
       channelId: "geofence",
@@ -35,13 +39,6 @@ export default function GeofenceChecker() {
       vibrate: true,
     });
   };
-
-  const [alarmOn, setAlarmOn] = useState(false);
-  const { pins, addPin, updatePin, removePin } = useContext(PinContext);
-  const insideStatus = useRef({});
-  const initialized = useRef(false); 
-
-  const [location, setLocation] = useState(null);
 
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371000;
@@ -55,68 +52,72 @@ export default function GeofenceChecker() {
     return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
   };
 
-    useEffect(() => {
-      if (!location) return;
+  useEffect(() => {
+    if (!location) return;
 
-      const watchId = Geolocation.watchPosition(
-          (pos) => {
-              const { latitude, longitude } = pos.coords;
-              const currentlyInsidePins = [];
+    const watchId = Geolocation.watchPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        console.log(`Current position: ${latitude}, ${longitude}`);
 
-              pins.forEach((pin) => {
-                  const distance = getDistance(latitude, longitude, pin.coordinate.latitude, pin.coordinate.longitude);
-                  const isInside = distance <= pin.radius;
+        pins.forEach((pin) => {
+          const distance = getDistance(latitude, longitude, pin.coordinate.latitude, pin.coordinate.longitude);
+          const isInside = distance <= pin.radius;
 
-                  currentlyInsidePins.push(isInside);
+          // Only trigger notification AFTER initialization
+          if (initialized.current) {
+            if (insideStatus.current[pin.id] !== isInside) {
 
-                  // Only trigger notification AFTER initialization
-                  if (initialized.current) {
-                      if (insideStatus.current[pin.id] !== isInside) {
-                          insideStatus.current[pin.id] = isInside;
+              if (pendingTimers.current[pin.id]) {
+                clearTimeout(pendingTimers.current[pin.id]);
+              }
 
-                          if (isInside && pin.property === 1) 
-                            {
-                              console.log("Entered");
-                              triggerNotification(
-                                  `Entered`,
-                                  `You've arrived at ${pin.title || "the location"}`
-                              );
-                              setAlarmOn(true);
-                            } 
-                          else if (!isInside && pin.property === 0) 
-                            {
-                              console.log("Exited");
-                              triggerNotification(
-                                  `Exited`,
-                                  `You've Exited from ${pin.title || "the location"}`
-                              );
-                              setAlarmOn(true);
-                            }
-                          else{
-                            console.log("No action for this pin property");
-                          }
-                      }
-                  } else {
-                      // Initialize the status without triggering
-                      insideStatus.current[pin.id] = isInside;
+              pendingTimers.current[pin.id] = setTimeout(() => {
+                insideStatus.current[pin.id] = isInside;
+
+                if (isInside && pin.property === 1) {
+                  console.log("Entered");
+                  triggerNotification(
+                    `Entered`,
+                    `You've arrived at ${pin.title || "the location"}`
+                  );
+                  if (pin.sound) {
+                    setAlarmOn(true);
                   }
-              });
+                } else if (!isInside && pin.property === 0) {
+                  console.log("Exited");
+                  triggerNotification(
+                    `Exited`,
+                    `You've Exited from ${pin.title || "the location"}`
+                  );
+                  if (pin.sound) {
+                    setAlarmOn(true);
+                  }
+                } else {
+                  console.log("No action for this pin property");
+                }
+              }, 1500);
+            }
+          } else {
+            // Initialize the status without triggering
+            insideStatus.current[pin.id] = isInside;
+          }
+        });
 
-              // After the first run, mark as initialized
-              if (!initialized.current) initialized.current = true;
+        // After the first run, mark as initialized
+        if (!initialized.current) initialized.current = true;
 
-          },
-          (err) => console.warn(err),
-          { enableHighAccuracy: true, distanceFilter: 0, interval: 1000, fastestInterval: 500 }
-      );
+      },
+      (err) => console.warn(err),
+      { enableHighAccuracy: false, distanceFilter: 10, interval: 1000, fastestInterval: 500 }
+    );
 
-      return () => Geolocation.clearWatch(watchId);
-  }, [pins, location]); 
+    return () => Geolocation.clearWatch(watchId);
+  }, [pins, location]);
 
   return (
     <>
-      <RequestLocationPermission onLocation={setLocation}/>
-
+      <RequestLocationPermission onLocation={setLocation} />
       <Alarm play={alarmOn} onStop={() => setAlarmOn(false)} />
     </>
   )

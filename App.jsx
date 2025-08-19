@@ -7,15 +7,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import PushNotification from "react-native-push-notification";
 import LandingScreen from './Screens/LandingPage.jsx';
 
-PushNotification.createChannel(
-  {
-    channelId: 'gps-channel', // must match the one in notify function
-    channelName: 'GPS Alerts',
-    importance: 4, // high importance
-    vibrate: true,
-  },
-  (created) => console.log(`Channel created: ${created}`)
-);
 
 const Stack = createNativeStackNavigator();
 
