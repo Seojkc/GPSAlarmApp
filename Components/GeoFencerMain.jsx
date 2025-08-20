@@ -118,7 +118,7 @@ export default function GeofenceChecker() {
   return (
     <>
       <RequestLocationPermission onLocation={setLocation} />
-      <Alarm play={alarmOn} onStop={() => setAlarmOn(false)} />
+      <Alarm play={alarmOn} title={'Ettiyada koppe'} onStop={() => setAlarmOn(false)} />
     </>
   )
 }
