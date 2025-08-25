@@ -1,4 +1,3 @@
-// index.jsx
 import React from 'react';
 import { AppRegistry,useEffect } from 'react-native';
 import { name as appName } from './app.json';

@@ -64,7 +64,7 @@ export default function Alarm({ play, onStop, title }) {
   return (
     <Modal visible={isPlaying} transparent={false} animationType="fade">
       <View style={styles.container}>
-        <Text style={styles.title}>⏰ {title || "Alarm"}</Text>
+        <Text style={styles.title}>{title || "Alarm"}</Text>
 
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <TouchableOpacity style={styles.stopButton} onPress={stopAlarm}>
