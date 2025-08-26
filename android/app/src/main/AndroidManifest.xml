@@ -34,7 +34,7 @@
       </activity>
       <meta-data   
           android:name="com.google.android.geo.API_KEY"
-          android:value="AIzaSyANFonfCfREwHwLpyRYcZieozcEqTFGYyE"/> 
+          android:value="somenewValue"/>  ///here is the google map api key you can put your api key here
       <uses-library android:name="org.apache.http.legacy" android:required="false"/>
 
       <service
