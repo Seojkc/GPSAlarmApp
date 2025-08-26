@@ -12,6 +12,7 @@ export default function GeofenceChecker() {
   const insideStatus = useRef({});
   const initialized = useRef(false);
   const pendingTimers = useRef({});
+  const [curretntAlarmTitle, setCurretntAlarmTitle] = useState("");
 
   const [location, setLocation] = useState(null);
 
@@ -82,6 +83,7 @@ export default function GeofenceChecker() {
                     `You've arrived at ${pin.title || "the location"}`
                   );
                   if (pin.sound) {
+                    setCurretntAlarmTitle((pin.title || "the location" )+  " Entered");
                     setAlarmOn(true);
                   }
                 } else if (!isInside && pin.property === 0) {
@@ -91,6 +93,7 @@ export default function GeofenceChecker() {
                     `You've Exited from ${pin.title || "the location"}`
                   );
                   if (pin.sound) {
+                    setCurretntAlarmTitle((pin.title || "the location") +  " Exited");
                     setAlarmOn(true);
                   }
                 } else {
@@ -118,7 +121,7 @@ export default function GeofenceChecker() {
   return (
     <>
       <RequestLocationPermission onLocation={setLocation} />
-      <Alarm play={alarmOn} title={'Ettiyada koppe'} onStop={() => setAlarmOn(false)} />
+      <Alarm play={alarmOn} title={curretntAlarmTitle} onStop={() => setAlarmOn(false)} />
     </>
   )
 }

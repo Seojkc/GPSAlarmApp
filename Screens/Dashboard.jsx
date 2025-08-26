@@ -203,7 +203,7 @@ export default function Dashboard() {
 
     const newPin = {
       id: Date.now().toString(),
-      title: Date.now().toString(),
+      title: "Alarm",
       radius:200,
       property:1,
       sound:false,
